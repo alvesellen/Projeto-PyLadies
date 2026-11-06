@@ -53,11 +53,24 @@ def calc_gc(seq: str) -> float:
 
         return percentagem_gc
 
+    
 def filter_fasta(records: list, min_len: int = 0, min_gc: float = 0.0) -> list:
     """
     Filtra os registros por comprimento mínimo e conteúdo GC mínimo.
     """
-    # TODO: Exercício 3 - Implemente a filtragem de registros
+    lista_filtrada = []
+
+    for registo in records:
+        sequencia = registo["seq"]
+
+        comprimento = len(sequencia)
+        gc = calc_gc(sequencia)
+
+        if comprimento >= min_len and gc >= min_gc:
+            lista_filtrada.append(registo)
+
+    return lista_filtrada
+    
     return []
 
 
