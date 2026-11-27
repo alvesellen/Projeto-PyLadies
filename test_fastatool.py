@@ -4,7 +4,12 @@
 #     pytest test_fastatool.py
 # =====================================================================
 import os
-import pytest
+import importlib
+import sys
+import subprocess
+from fastatool import main
+
+pytest = importlib.import_module("pytest")
 from fastatool import read_fasta, calc_gc, filter_fasta, reverse_complement, write_fasta
 
 # =====================================================================
@@ -104,32 +109,41 @@ def test_filter_fasta_by_gc_and_length():
     assert filtered[1]["id"] == "mid_gc_long"
 
 
-# =====================================================================
-# EXERCÍCIO 4: Testes Parciais (Reverso Complementar)
-# Objetivo: Adicione os casos de teste ausentes.
-# =====================================================================
-
-def test_reverse_complement_basic():
-    # Teste básico fornecido
-    assert reverse_complement("ATGC") == "GCAT"
 
 
-def test_reverse_complement_case_preservation():
-    # TODO: Exercício 4 - Escreva um caso de teste para garantir a preservação de caixa (Maiúsculas/Minúsculas)
-    # Exemplo: "atgc" -> "gcat", "AtGc" -> "gCaT"
-    assert reverse_complement("atgc") == "gcat"
-    assert reverse_complement("AtGc") == "gCaT"
+def test_cli_integration(tmp_path, monkeypatch):
+    entrada = tmp_path / "in.fasta"
+    saida = tmp_path / "out.fasta"
+    entrada.write_text(">s1\nATGC\n>s2\nA\n>s3\nGGCC\n")
+
+    monkeypatch.setattr(sys, "argv", [
+        "fastatool.py", "--input", str(entrada), "--output", str(saida),
+        "--min-len", "4",
+    ])
+    main()
+
+    assert saida.read_text() == ">s1\nATGC\n>s3\nGGCC\n"
 
 
-# =====================================================================
-# EXERCÍCIO 5: TDD Puro (CLI e MVP)
-# Objetivo: Desenhe os seus testes ANTES de implementar a CLI em fastatool.py.
-# Dica: Use o módulo subprocess ou teste a função main passando argumentos em sys.argv.
-# =====================================================================
+def test_cli_rev_comp_and_min_gc(tmp_path, monkeypatch):
+    entrada = tmp_path / "in.fasta"
+    saida = tmp_path / "out.fasta"
+    entrada.write_text(">baixo\nATAT\n>alto\nGGCA\n")
 
-# TODO: Exercício 5 - Escreva aqui testes de integração para validar a CLI ponta a ponta.
-# Dica de estrutura de teste de CLI:
-# def test_cli_integration(tmp_path):
-#     import sys
-#     from fastatool import main
-#     ...
+    monkeypatch.setattr(sys, "argv", [
+        "fastatool.py", "--input", str(entrada), "--output", str(saida),
+        "--min-gc", "50", "--rev-comp",
+    ])
+    main()
+
+    # só "alto" passa no filtro; GGCA -> reverso complementar = TGCC
+    assert saida.read_text() == ">alto\nTGCC\n"
+
+
+def test_cli_missing_required_args():
+    resultado = subprocess.run(
+        [sys.executable, "fastatool.py", "--input", "x.fasta"],
+        capture_output=True, text=True,
+    )
+    assert resultado.returncode != 0
+    assert "--output" in resultado.stderr

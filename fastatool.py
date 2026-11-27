@@ -71,40 +71,38 @@ def filter_fasta(records: list, min_len: int = 0, min_gc: float = 0.0) -> list:
 
     return lista_filtrada
     
-    return []
-
 
 def reverse_complement(seq: str) -> str:
-    """
-    Returns the reverse complement of a DNA sequence.
-    Case-preserving (if input is lower, output is lower. If mixed, preserves matching case).
-    A <-> T, C <-> G
-    """
-    # TODO: Exercício 4 - Implemente o reverso complementar
-    return ""
+    tabela = str.maketrans("ATGCatgc", "TACGtacg")
+    return seq.translate(tabela)[::-1]
 
 
 def write_fasta(records: list, path: str) -> None:
-    """
-    Grava uma lista de registros no formato FASTA em um arquivo de saída.
-    """
-    # TODO: Exercício 5 - Implemente a gravação do FASTA
-    pass
+    with open(path, "w") as arquivo:
+        for registo in records:
+            arquivo.write(f">{registo['id']}\n")
+            arquivo.write(f"{registo['seq']}\n")
 
 
 def main():
-    """
-    Interface de linha de comando (CLI) da ferramenta.
-    Deve suportar os seguintes argumentos:
-    --input: Arquivo FASTA de entrada (obrigatório)
-    --output: Arquivo FASTA de saída (obrigatório)
-    --min-len: Comprimento mínimo de sequência (opcional, default: 0)
-    --min-gc: Conteúdo GC mínimo (opcional, default: 0.0)
-    --rev-comp: Flag para aplicar reverso complementar nas sequências mantidas (opcional, flag booleana)
-    """
-    # TODO: Exercício 5 - Implemente a CLI
-    pass
+    parser = argparse.ArgumentParser(description="Ferramenta de manipulação de ficheiros FASTA.")
+    parser.add_argument("--input", required=True, help="Ficheiro FASTA de entrada")
+    parser.add_argument("--output", required=True, help="Ficheiro FASTA de saída")
+    parser.add_argument("--min-len", type=int, default=0, help="Comprimento mínimo da sequência")
+    parser.add_argument("--min-gc", type=float, default=0.0, help="Conteúdo GC mínimo (%%)")
+    parser.add_argument("--rev-comp", action="store_true", help="Aplicar reverso complementar")
+    args = parser.parse_args()
 
+    records = read_fasta(args.input)
+    filtrados = filter_fasta(records, min_len=args.min_len, min_gc=args.min_gc)
+
+    if args.rev_comp:
+        filtrados = [
+            {"id": r["id"], "seq": reverse_complement(r["seq"])}
+            for r in filtrados
+        ]
+
+    write_fasta(filtrados, args.output)
 
 if __name__ == "__main__":
     main()
