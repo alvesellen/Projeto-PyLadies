@@ -15,6 +15,7 @@ Criar uma Ferramenta de manipulação de sequências de DNA em arquivos FASTA pa
 ## Features
 
 - Python
+- Arquivos em formato FASTA
 
 ## Authors
 
