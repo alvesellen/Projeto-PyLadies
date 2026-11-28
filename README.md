@@ -8,25 +8,15 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
 
+## Describe
+
+Criar uma Ferramenta de manipulação de sequências de DNA em arquivos FASTA para armazenamento, leitura, contagem e cálculo das sequências.
+
 ## Features
 
-- Manipulação de arquivos FASTA
+- Python
 
-## Installation
-
-```bash
-npm install my-project
-```
-
-## Quick start
-
-```
-import { feature } from 'my-project';
-
-feature().start();
-```
-
-## Author
+## Authors
 
 Caprice Lima e Ellen Alves
 
