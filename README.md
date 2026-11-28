@@ -10,10 +10,7 @@
 
 ## Features
 
-- Fast and efficient
-- Zero external dependencies
-- Built-in dark mode
-- Fully typed API
+- Manipulação de arquivos FASTA
 
 ## Installation
 
